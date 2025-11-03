@@ -1,0 +1,22 @@
+{
+  "files.autoSave": "off",
+  // Format on save globally
+  "editor.formatOnSave": true,
+
+  // Use Prettier as default formatter
+  "editor.defaultFormatter": "esbenp.prettier-vscode",
+
+  // Optional: backend-friendly defaults
+  "[typescript]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "[javascript]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  }
+
+  // Ignore formatting node_modules, build files
+  // "files.exclude": {
+  //   "node_modules": true,
+  //   "dist": true
+  // }
+}
