@@ -1,4 +1,4 @@
-import { getEnv } from '../utils/get-env';
+import { getEnv } from '../utils/env.utils';
 
 export const ENV = {
   PORT: getEnv('PORT', '5000'),

@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
-import { User } from '../models/user.modal';
-import { generateToken } from '../utils/generate-token';
+import { User } from '../models/user.model';
+import { generateToken } from '../utils/token.utils';
 
 export const register = async (req: Request, res: Response) => {
   try {

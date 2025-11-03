@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import authRoutes from './routes/auth.routes';
-// import bookmarkRoutes from "./bookmark.routes";
+import bookmarkRoutes from './routes/bookmark.routes';
 
 const router = Router();
 
@@ -9,6 +9,6 @@ router.get('/', (_, res) => {
 });
 
 router.use('/auth', authRoutes);
-// router.use("/bookmarks", bookmarkRoutes);
+router.use('/bookmarks', bookmarkRoutes);
 
 export default router;
