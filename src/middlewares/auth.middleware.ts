@@ -1,25 +1,34 @@
-import jwt, { JwtPayload } from 'jsonwebtoken';
+// src/middlewares/auth.middleware.ts
+
 import { Request, Response, NextFunction } from 'express';
-import { ENV } from '../config/app.config';
 import { User } from '../models/user.model';
 import { extractBearerToken, verifyToken } from '../utils/token.utils';
+import { HTTP_STATUS } from '../config/http.config';
 
 export const authMiddleware = async (req: Request, res: Response, next: NextFunction) => {
-  const token = extractBearerToken(req.headers.authorization);
-  if (!token) {
-    return res.status(401).json({ message: 'No token provided' });
-  }
+  try {
+    const accessToken = extractBearerToken(req.headers.authorization);
+    if (!accessToken) {
+      return res.status(HTTP_STATUS.UNAUTHORIZED).json({ message: 'No token provided' });
+    }
 
-  const decoded = verifyToken(token);
-  if (!decoded) {
-    return res.status(401).json({ message: 'Invalid token' });
-  }
+    const decoded = verifyToken(accessToken);
+    if (!decoded) {
+      return res
+        .status(HTTP_STATUS.UNAUTHORIZED)
+        .json({ message: 'Invalid or expired access token' });
+    }
 
-  const user = await User.findById(decoded.id).select('-password');
-  if (!user) {
-    return res.status(401).json({ message: 'User not found' });
-  }
+    const user = await User.findById(decoded.id).select('-password');
+    if (!user) {
+      return res.status(HTTP_STATUS.UNAUTHORIZED).json({ message: 'User not found' });
+    }
 
-  req.user = user; // ✅ thanks to your global declaration
-  next();
+    // Attach authenticated user to request
+    req.user = user;
+    next();
+  } catch (error) {
+    console.error('Auth Middleware Error:', error);
+    return res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({ message: 'Authentication failed' });
+  }
 };
