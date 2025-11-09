@@ -1,3 +1,5 @@
+// src/models/bookmark.model.ts
+
 import mongoose, { Schema, Document } from 'mongoose';
 
 export interface IBookmark extends Document {

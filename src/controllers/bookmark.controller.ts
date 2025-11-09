@@ -4,6 +4,7 @@ import { Request, Response } from 'express';
 import { Bookmark } from '../models/bookmark.model';
 import { BadRequestException, NotFoundException } from '../utils/app-error.utils';
 import { HTTP_STATUS_CODE } from '../config/http.config';
+import { extractMetadata } from '../utils/meta.utils';
 
 /**
  * @desc Get all bookmarks for authenticated user
@@ -41,16 +42,18 @@ export const createBookmark = async (req: Request, res: Response) => {
 
   // Prevent duplicates for same user + same URL
   const existing = await Bookmark.findOne({ url, user: user._id });
-  if (existing) {
-    throw new BadRequestException('Bookmark with this URL already exists');
-  }
+  if (existing) throw new BadRequestException('Bookmark with this URL already exists');
+
+  // 🔍 Fetch metadata
+  const metadata = await extractMetadata(url);
 
   const bookmark = await Bookmark.create({
-    title,
+    title: title || metadata.title || url,
     url,
-    description,
+    description: description || metadata.description,
     tags,
     user: user._id,
+    metadata, // store everything (favicon, image, author, etc.)
   });
 
   res.status(HTTP_STATUS_CODE.CREATED).json({ bookmark });
