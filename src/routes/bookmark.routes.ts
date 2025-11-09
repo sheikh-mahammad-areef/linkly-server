@@ -1,3 +1,5 @@
+// src/routes/bookmark.routes.ts
+
 import { Router } from 'express';
 import {
   createBookmark,

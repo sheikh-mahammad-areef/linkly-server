@@ -1,40 +1,93 @@
+// src/controllers/bookmark.controller.ts
+
 import { Request, Response } from 'express';
 import { Bookmark } from '../models/bookmark.model';
+import { BadRequestException, NotFoundException } from '../utils/app-error.utils';
+import { HTTP_STATUS_CODE } from '../config/http.config';
 
+/**
+ * @desc Get all bookmarks for authenticated user
+ * @route GET /api/bookmarks
+ */
 export const getBookmarks = async (req: Request, res: Response) => {
   const user = (req as any).user;
   const bookmarks = await Bookmark.find({ user: user._id });
-  res.json({ bookmarks });
+  res.status(HTTP_STATUS_CODE.OK).json({ bookmarks });
 };
 
+/**
+ * @desc Get a single bookmark by ID
+ * @route GET /api/bookmarks/:id
+ */
 export const getBookmarkById = async (req: Request, res: Response) => {
   const user = (req as any).user;
-  const bookmark = await Bookmark.findOne({ _id: req.params.id, user: user._id });
-  if (!bookmark) return res.status(404).json({ message: 'Not found' });
-  res.json({ bookmark });
+  const { id } = req.params;
+
+  const bookmark = await Bookmark.findOne({ _id: id, user: user._id });
+  if (!bookmark) {
+    throw new NotFoundException('Bookmark not found');
+  }
+
+  res.status(HTTP_STATUS_CODE.OK).json({ bookmark });
 };
 
+/**
+ * @desc Create a new bookmark
+ * @route POST /api/bookmarks
+ */
 export const createBookmark = async (req: Request, res: Response) => {
   const user = (req as any).user;
   const { title, url, description, tags } = req.body;
-  const bookmark = await Bookmark.create({ title, url, description, tags, user: user._id });
-  res.status(201).json({ bookmark });
+
+  // Prevent duplicates for same user + same URL
+  const existing = await Bookmark.findOne({ url, user: user._id });
+  if (existing) {
+    throw new BadRequestException('Bookmark with this URL already exists');
+  }
+
+  const bookmark = await Bookmark.create({
+    title,
+    url,
+    description,
+    tags,
+    user: user._id,
+  });
+
+  res.status(HTTP_STATUS_CODE.CREATED).json({ bookmark });
 };
 
+/**
+ * @desc Update an existing bookmark
+ * @route PUT /api/bookmarks/:id
+ */
 export const updateBookmark = async (req: Request, res: Response) => {
   const user = (req as any).user;
   const { id } = req.params;
-  const update = await Bookmark.findOneAndUpdate({ _id: id, user: user._id }, req.body, {
+
+  const updated = await Bookmark.findOneAndUpdate({ _id: id, user: user._id }, req.body, {
     new: true,
+    runValidators: true,
   });
-  if (!update) return res.status(404).json({ message: 'Bookmark not found' });
-  res.json({ bookmark: update });
+
+  if (!updated) throw new NotFoundException('Bookmark not found');
+
+  res.status(HTTP_STATUS_CODE.OK).json({ bookmark: updated });
 };
 
+/**
+ * @desc Delete a bookmark
+ * @route DELETE /api/bookmarks/:id
+ */
 export const deleteBookmark = async (req: Request, res: Response) => {
   const user = (req as any).user;
   const { id } = req.params;
-  const deleted = await Bookmark.findOneAndDelete({ _id: id, user: user._id });
-  if (!deleted) return res.status(404).json({ message: 'Bookmark not found' });
-  res.json({ message: 'Bookmark deleted' });
+
+  const bookmark = await Bookmark.findOne({ _id: id, user: user._id });
+  if (!bookmark) {
+    throw new NotFoundException('Bookmark not found');
+  }
+
+  const deleted = await Bookmark.deleteOne({ _id: id, user: user._id });
+
+  res.status(HTTP_STATUS_CODE.OK).json({ message: 'Bookmark deleted successfully' });
 };

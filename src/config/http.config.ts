@@ -1,6 +1,6 @@
 // src/config/http.config.ts
 
-export const HTTP_STATUS = {
+export const HTTP_STATUS_CODE = {
   //   successful responses
   OK: 200,
   CREATED: 201,
@@ -24,4 +24,4 @@ export const HTTP_STATUS = {
   GATEWAY_TIMEOUT: 504,
 } as const;
 
-export type HttpStatusCode = (typeof HTTP_STATUS)[keyof typeof HTTP_STATUS];
+export type HTTP_STATUS_CODE_TYPE = (typeof HTTP_STATUS_CODE)[keyof typeof HTTP_STATUS_CODE];

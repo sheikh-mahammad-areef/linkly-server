@@ -1,3 +1,5 @@
+// src/validations/bookmark.validation.ts
+
 import { z } from 'zod';
 
 // Schema for creating a bookmark
