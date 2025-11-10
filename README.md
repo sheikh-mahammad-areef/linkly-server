@@ -19,4 +19,6 @@ It handles API routes, authentication, validation, and database communication.
 
 ---
 
-## 🗂 Folder Structure
+## License
+
+This project is licensed under the [MIT License](./LICENSE).
