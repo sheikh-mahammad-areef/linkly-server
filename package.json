@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
-    "dev": "tsx --watch src/index.ts",
+    "dev": "tsx --watch --env-file .env src/index.ts",
     "build": "tsc",
     "start": "node dist/index.js",
     "format": "prettier --write .",
@@ -16,7 +16,6 @@
   "dependencies": {
     "bcrypt": "^6.0.0",
     "cors": "^2.8.5",
-    "dotenv": "^17.2.3",
     "express": "^5.1.0",
     "got": "^14.6.3",
     "helmet": "^8.1.0",
