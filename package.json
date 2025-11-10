@@ -3,13 +3,13 @@
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
-    "dev": "ts-node-dev --respawn --transpile-only src/index.ts",
+    "dev": "tsx --watch src/index.ts",
     "build": "tsc",
     "start": "node dist/index.js"
   },
   "keywords": [],
-  "author": "",
-  "license": "ISC",
+  "author": "mahammad areef",
+  "license": "MIT",
   "description": "",
   "dependencies": {
     "bcrypt": "^6.0.0",
@@ -27,6 +27,7 @@
     "metascraper-image": "^5.49.5",
     "metascraper-lang": "^5.49.5",
     "metascraper-logo": "^5.49.5",
+    "metascraper-logo-favicon": "^5.49.5",
     "metascraper-publisher": "^5.49.5",
     "metascraper-title": "^5.49.5",
     "metascraper-url": "^5.49.5",
@@ -43,6 +44,7 @@
     "@types/node": "^24.9.2",
     "prettier": "^3.6.2",
     "ts-node-dev": "^2.0.0",
+    "tsx": "^4.20.6",
     "typescript": "^5.9.3"
   }
 }
