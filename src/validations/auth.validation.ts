@@ -1,10 +1,11 @@
+//  ------------------------------------------------------------------
+//  file: src/validations/auth.validation.ts
+//  Authentication input validations
+//  ------------------------------------------------------------------
+
 import { z } from 'zod';
 
-export const emailSchema = z
-  .string()
-  .trim()
-  .min(3, 'email must be greater than 3 letters ')
-  .email('Invalid email address');
+export const emailSchema = z.email('Invalid email address');
 
 export const passwordSchema = z
   .string()

@@ -1,3 +1,8 @@
+//  ------------------------------------------------------------------
+//  file: src/config/app.config.ts
+//  Application configuration
+//  ------------------------------------------------------------------
+
 import { getEnv } from '../utils/env.utils';
 
 export const ENV = {

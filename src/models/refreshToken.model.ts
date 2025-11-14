@@ -1,4 +1,8 @@
-// models/refreshToken.model.ts
+//  ------------------------------------------------------------------
+//  file: src/models/refreshToken.model.ts
+//  Mongoose model for refresh tokens
+//  ------------------------------------------------------------------
+
 import mongoose, { Schema, Document } from 'mongoose';
 
 export interface IRefreshToken extends Document {

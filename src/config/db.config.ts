@@ -1,4 +1,10 @@
+//  ------------------------------------------------------------------
+//  file: src/config/db.config.ts
+//  Database configuration and connection
+//  ------------------------------------------------------------------
+
 import mongoose from 'mongoose';
+
 import { ENV } from './app.config';
 
 export const connectDB = async () => {

@@ -1,5 +1,10 @@
-import mongoose, { Schema, Document } from 'mongoose';
+//  ------------------------------------------------------------------
+//  file: src/models/user.model.ts
+//  Mongoose model for users
+//  ------------------------------------------------------------------
+
 import bcrypt from 'bcrypt';
+import mongoose, { Schema, Document } from 'mongoose';
 
 export interface IUser extends Document {
   name: string;
@@ -20,12 +25,15 @@ const userSchema = new Schema<IUser>(
 );
 
 userSchema.pre('save', async function (next) {
-  if (!this.isModified('password')) return next();
+  if (!this.isModified('password')) {
+    next();
+    return;
+  }
   this.password = await bcrypt.hash(this.password, 10);
   next();
 });
 
-userSchema.methods.comparePassword = async function (candidate: string) {
+userSchema.methods.comparePassword = async function (this: IUser, candidate: string) {
   return bcrypt.compare(candidate, this.password);
 };
 

@@ -1,10 +1,13 @@
-// src/middlewares/auth.middleware.ts
+//  ------------------------------------------------------------------
+//  file: src/middlewares/auth.middleware.ts
+//  Authentication middleware
+//  ------------------------------------------------------------------
 
 import { Request, Response, NextFunction } from 'express';
+
 import { User } from '../models/user.model';
-import { extractBearerToken, verifyToken } from '../utils/token.utils';
-import { HTTP_STATUS_CODE } from '../config/http.config';
 import { UnauthorizedException } from '../utils/app-error.utils';
+import { extractBearerToken, verifyToken } from '../utils/token.utils';
 
 export const authMiddleware = async (req: Request, res: Response, next: NextFunction) => {
   const accessToken = extractBearerToken(req.headers.authorization);

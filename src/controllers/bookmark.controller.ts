@@ -1,18 +1,22 @@
-// src/controllers/bookmark.controller.ts
+// ============================================================================
+// FILE: src/controllers/bookmark.controller.ts
+// bookmarks Controller logic
+// ============================================================================
 
 import { Request, Response } from 'express';
-import { Bookmark } from '../models/bookmark.model';
-import { BadRequestException, NotFoundException } from '../utils/app-error.utils';
+
 import { HTTP_STATUS_CODE } from '../config/http.config';
-import { extractMetadata } from '../utils/meta.utils';
+import { bookmarkService } from '../services/bookmark.service';
+import { CreateBookmarkBody, UpdateBookmarkBody } from '../types/bookmark.types';
+import { BadRequestException } from '../utils/app-error.utils';
 
 /**
  * @desc Get all bookmarks for authenticated user
  * @route GET /api/bookmarks
  */
-export const getBookmarks = async (req: Request, res: Response) => {
-  const user = (req as any).user;
-  const bookmarks = await Bookmark.find({ user: user._id });
+export const getBookmarks = async (req: Request, res: Response): Promise<void> => {
+  const userId = String(req.user._id);
+  const bookmarks = await bookmarkService.getUserBookmarks(userId);
   res.status(HTTP_STATUS_CODE.OK).json({ bookmarks });
 };
 
@@ -20,15 +24,13 @@ export const getBookmarks = async (req: Request, res: Response) => {
  * @desc Get a single bookmark by ID
  * @route GET /api/bookmarks/:id
  */
-export const getBookmarkById = async (req: Request, res: Response) => {
-  const user = (req as any).user;
+export const getBookmarkById = async (req: Request, res: Response): Promise<void> => {
+  const userId = String(req.user._id);
   const { id } = req.params;
-
-  const bookmark = await Bookmark.findOne({ _id: id, user: user._id });
-  if (!bookmark) {
-    throw new NotFoundException('Bookmark not found');
+  if (!id) {
+    throw new BadRequestException('Id parameter is required');
   }
-
+  const bookmark = await bookmarkService.getBookmarkById(id, userId);
   res.status(HTTP_STATUS_CODE.OK).json({ bookmark });
 };
 
@@ -36,26 +38,9 @@ export const getBookmarkById = async (req: Request, res: Response) => {
  * @desc Create a new bookmark
  * @route POST /api/bookmarks
  */
-export const createBookmark = async (req: Request, res: Response) => {
-  const user = (req as any).user;
-  const { title, url, description, tags } = req.body;
-
-  // Prevent duplicates for same user + same URL
-  const existing = await Bookmark.findOne({ url, user: user._id });
-  if (existing) throw new BadRequestException('Bookmark with this URL already exists');
-
-  // 🔍 Fetch metadata
-  const metadata = await extractMetadata(url);
-
-  const bookmark = await Bookmark.create({
-    title: title || metadata.title || url,
-    url,
-    description: description || metadata.description,
-    tags,
-    user: user._id,
-    metadata, // store everything (favicon, image, author, etc.)
-  });
-
+export const createBookmark = async (req: Request, res: Response): Promise<void> => {
+  const userId = String(req.user._id);
+  const bookmark = await bookmarkService.createBookmark(userId, req.body as CreateBookmarkBody);
   res.status(HTTP_STATUS_CODE.CREATED).json({ bookmark });
 };
 
@@ -63,34 +48,51 @@ export const createBookmark = async (req: Request, res: Response) => {
  * @desc Update an existing bookmark
  * @route PUT /api/bookmarks/:id
  */
-export const updateBookmark = async (req: Request, res: Response) => {
-  const user = (req as any).user;
+export const updateBookmark = async (req: Request, res: Response): Promise<void> => {
+  const userId = String(req.user._id);
   const { id } = req.params;
-
-  const updated = await Bookmark.findOneAndUpdate({ _id: id, user: user._id }, req.body, {
-    new: true,
-    runValidators: true,
-  });
-
-  if (!updated) throw new NotFoundException('Bookmark not found');
-
-  res.status(HTTP_STATUS_CODE.OK).json({ bookmark: updated });
+  if (!id) {
+    throw new BadRequestException('id parameter is required');
+  }
+  const bookmark = await bookmarkService.updateBookmark(id, userId, req.body as UpdateBookmarkBody);
+  res.status(HTTP_STATUS_CODE.OK).json({ bookmark });
 };
 
 /**
  * @desc Delete a bookmark
  * @route DELETE /api/bookmarks/:id
  */
-export const deleteBookmark = async (req: Request, res: Response) => {
-  const user = (req as any).user;
+export const deleteBookmark = async (req: Request, res: Response): Promise<void> => {
+  const userId = String(req.user._id);
   const { id } = req.params;
-
-  const bookmark = await Bookmark.findOne({ _id: id, user: user._id });
-  if (!bookmark) {
-    throw new NotFoundException('Bookmark not found');
+  if (!id) {
+    throw new BadRequestException('id parameter is required');
   }
-
-  const deleted = await Bookmark.deleteOne({ _id: id, user: user._id });
-
+  await bookmarkService.deleteBookmark(id, userId);
   res.status(HTTP_STATUS_CODE.OK).json({ message: 'Bookmark deleted successfully' });
+};
+
+/**
+ * @desc Search bookmarks
+ * @route GET /api/bookmarks/search?q=query
+ */
+export const searchBookmarks = async (req: Request, res: Response): Promise<void> => {
+  const userId = String(req.user._id);
+  const query = (req.query.q ?? '') as string;
+  const bookmarks = await bookmarkService.searchBookmarks(userId, query);
+  res.status(HTTP_STATUS_CODE.OK).json({ bookmarks });
+};
+
+/**
+ * @desc Get bookmarks by tag
+ * @route GET /api/bookmarks/tags/:tag
+ */
+export const getBookmarksByTag = async (req: Request, res: Response): Promise<void> => {
+  const userId = String(req.user._id);
+  const { tag } = req.params;
+  if (!tag) {
+    throw new BadRequestException('Tag parameter is required');
+  }
+  const bookmarks = await bookmarkService.getBookmarksByTag(userId, tag);
+  res.status(HTTP_STATUS_CODE.OK).json({ bookmarks });
 };

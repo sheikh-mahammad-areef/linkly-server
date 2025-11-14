@@ -1,9 +1,13 @@
-// src/middlewares/validate.middleware.ts
+//  ------------------------------------------------------------------
+//  file: src/middlewares/validate.middleware.ts
+//  Validation middleware using Zod
+//  ------------------------------------------------------------------
 
 import { Request, Response, NextFunction } from 'express';
 import { ZodType, ZodError } from 'zod';
-import { BadRequestException } from '../utils/app-error.utils';
+
 import { ERROR_CODE_ENUM } from '../enums/error-code.enum';
+import { BadRequestException } from '../utils/app-error.utils';
 
 /**
  * Validates request body, query, and params using a Zod schema.
@@ -11,14 +15,15 @@ import { ERROR_CODE_ENUM } from '../enums/error-code.enum';
  * the global error handler will catch and format consistently.
  */
 export const validate =
-  (schema: ZodType<any>) => (req: Request, _res: Response, next: NextFunction) => {
+  (schema: ZodType) => async (req: Request, _res: Response, next: NextFunction) => {
     try {
-      schema.parse({
-        body: req.body,
+      await schema.parseAsync({
+        body: req.body as undefined,
         query: req.query,
         params: req.params,
       });
-      return next();
+      next();
+      return;
     } catch (error) {
       if (error instanceof ZodError) {
         const details = error.issues.map((err) => ({
@@ -27,14 +32,14 @@ export const validate =
         }));
 
         // Forward the structured error to global handler
-        return next(
+        next(
           new BadRequestException('Validation failed', ERROR_CODE_ENUM.VALIDATION_ERROR, details),
         );
+        return;
       }
 
       // Fallback for unexpected errors
-      return next(
-        new BadRequestException('Invalid request format', ERROR_CODE_ENUM.VALIDATION_ERROR),
-      );
+      next(new BadRequestException('Invalid request format', ERROR_CODE_ENUM.VALIDATION_ERROR));
+      return;
     }
   };

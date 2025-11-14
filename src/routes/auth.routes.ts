@@ -1,6 +1,10 @@
-// src/routes/auth.routes.ts
+//  ------------------------------------------------------------------
+//  file: src/routes/auth.routes.ts
+//  Authentication routes
+//  ------------------------------------------------------------------
 
 import { Router } from 'express';
+
 import { login, refresh, register } from '../controllers/auth.controller';
 import { validate } from '../middlewares/validate.middleware';
 import { loginSchema, refreshSchema, registerSchema } from '../validations/auth.validation';

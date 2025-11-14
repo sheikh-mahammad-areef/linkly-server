@@ -1,4 +1,7 @@
-// src/utils/app-error.utils.ts
+//  ------------------------------------------------------------------
+//  file: src/utils/app-error.utils.ts
+//  Application error handling utilities
+//  ------------------------------------------------------------------
 
 import { HTTP_STATUS_CODE, HTTP_STATUS_CODE_TYPE } from '../config/http.config';
 import { ERROR_CODE_ENUM, ERROR_CODE_ENUM_TYPE } from '../enums/error-code.enum';
@@ -41,12 +44,7 @@ export class BadRequestException extends AppError {
     errorCode: ERROR_CODE_ENUM_TYPE = ERROR_CODE_ENUM.VALIDATION_ERROR,
     details?: unknown,
   ) {
-    super(
-      message,
-      HTTP_STATUS_CODE.BAD_REQUEST,
-      errorCode || ERROR_CODE_ENUM.VALIDATION_ERROR,
-      details,
-    );
+    super(message, HTTP_STATUS_CODE.BAD_REQUEST, errorCode, details);
   }
 }
 

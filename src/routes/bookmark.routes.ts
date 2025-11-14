@@ -1,6 +1,10 @@
-// src/routes/bookmark.routes.ts
+//  ------------------------------------------------------------------
+//  file: src/routes/bookmark.routes.ts
+//  Bookmark management routes
+//  ------------------------------------------------------------------
 
 import { Router } from 'express';
+
 import {
   createBookmark,
   getBookmarks,

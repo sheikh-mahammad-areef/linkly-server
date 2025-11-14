@@ -1,6 +1,10 @@
-// src/utils/token.utils.ts
+//  ------------------------------------------------------------------
+//  file: src/utils/token.utils.ts
+//  Token generation and verification utilities
+//  ------------------------------------------------------------------
 
 import jwt, { JwtPayload } from 'jsonwebtoken';
+
 import { ENV } from '../config/app.config';
 
 export interface TokenPayload extends JwtPayload {

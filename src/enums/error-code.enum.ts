@@ -1,4 +1,7 @@
-// src/enums/error-code.enum.ts
+//  ------------------------------------------------------------------
+//  file: src/enums/error-code.enum.ts
+//  Enumeration of application error codes
+//  ------------------------------------------------------------------
 
 export enum ERROR_CODE_ENUM {
   // Auth related

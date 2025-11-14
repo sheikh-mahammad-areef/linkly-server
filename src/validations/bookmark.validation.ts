@@ -1,4 +1,7 @@
-// src/validations/bookmark.validation.ts
+//  ------------------------------------------------------------------
+//  file: src/validations/bookmark.validation.ts
+//  Bookmark input validations
+//  ------------------------------------------------------------------
 
 import { z } from 'zod';
 
@@ -6,8 +9,8 @@ import { z } from 'zod';
 export const createBookmarkSchema = z.object({
   body: z
     .object({
-      title: z.string().min(1, 'Title is required'),
-      url: z.string().url('Invalid URL'),
+      title: z.string().min(1).optional(),
+      url: z.url('Invalid URL'),
       description: z.string().optional(),
       tags: z.array(z.string()).optional(),
     })
@@ -19,7 +22,7 @@ export const updateBookmarkSchema = z.object({
   body: z
     .object({
       title: z.string().optional(),
-      url: z.string().url().optional(),
+      url: z.url().optional(),
       description: z.string().optional(),
       tags: z.array(z.string()).optional(),
     })

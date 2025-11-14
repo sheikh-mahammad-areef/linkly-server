@@ -1,4 +1,7 @@
-// src/config/http.config.ts
+//  ------------------------------------------------------------------
+//  file: src/config/http.config.ts
+//  HTTP status codes configuration
+//  ------------------------------------------------------------------
 
 export const HTTP_STATUS_CODE = {
   //   successful responses

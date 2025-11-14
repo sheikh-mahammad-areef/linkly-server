@@ -6,7 +6,7 @@ export interface IBookmark extends Document {
   title: string;
   url: string;
   description?: string;
-  tags?: string;
+  tags?: string[];
   user: mongoose.Schema.Types.ObjectId;
   metadata?: {
     description?: string;

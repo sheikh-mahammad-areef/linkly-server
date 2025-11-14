@@ -6,8 +6,10 @@
 
     /* Compilation target and module system */
     "target": "ES2021",
-    "module": "nodenext",
-    "moduleResolution": "nodenext",
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+
+    "typeRoots": ["./src/types", "./node_modules/@types"],
 
     /* Node.js compatibility */
     "types": ["node"],

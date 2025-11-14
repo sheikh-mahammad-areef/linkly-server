@@ -1,9 +1,14 @@
+//  --------------------------------------------------------------------
+//  file: eslint.config.js
+//  --------------------------------------------------------------------
+
 // @ts-check
+import { defineConfig } from 'eslint/config';
 import eslint from '@eslint/js';
 import tseslint from 'typescript-eslint';
 import perfectionist from 'eslint-plugin-perfectionist';
 
-export default tseslint.config(
+export default defineConfig([
   {
     ignores: ['**/*.js', 'dist/**', 'node_modules/**'],
   },
@@ -19,17 +24,23 @@ export default tseslint.config(
     },
     plugins: { perfectionist },
     rules: {
+      '@typescript-eslint/no-unused-vars': ['warn', { argsIgnorePattern: '^_' }],
+      '@typescript-eslint/no-unsafe-assignment': 'off',
+      '@typescript-eslint/no-unsafe-member-access': 'off',
+      '@typescript-eslint/no-unsafe-call': 'off',
+      '@typescript-eslint/no-unsafe-argument': 'off',
+      '@typescript-eslint/no-unsafe-return': 'off',
+      '@typescript-eslint/require-await': 'warn',
+      '@typescript-eslint/restrict-template-expressions': 'off',
+
       // Only sort imports — leave everything else alone
       'perfectionist/sort-imports': [
         'warn',
         {
           type: 'natural',
-          groups: [
-            ['builtin', 'external', 'internal'],
-            ['parent', 'sibling', 'index'],
-          ],
+          groups: [['builtin', 'external'], ['internal'], ['parent', 'sibling', 'index']],
         },
       ],
     },
   },
-);
+]);

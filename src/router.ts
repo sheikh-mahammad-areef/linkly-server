@@ -1,4 +1,10 @@
+//  ------------------------------------------------------------------
+//  file: src/router.ts
+//  Main API router setup
+//  ------------------------------------------------------------------
+
 import { Router } from 'express';
+
 import authRoutes from './routes/auth.routes';
 import bookmarkRoutes from './routes/bookmark.routes';
 

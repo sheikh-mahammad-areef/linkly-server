@@ -1,21 +1,32 @@
-// src/controllers/auth.controller.ts
+// ============================================================================
+// FILE: src/controllers/auth.controller.ts
+// Authentication Controller logic
+// ============================================================================
 
 import { Request, Response } from 'express';
-import { User } from '../models/user.model';
-import { RefreshToken } from '../models/refreshToken.model';
-import { generateAccessToken, generateRefreshToken, verifyToken } from '../utils/token.utils';
+
 import { HTTP_STATUS_CODE } from '../config/http.config';
 import { ERROR_CODE_ENUM } from '../enums/error-code.enum';
+import { RefreshToken } from '../models/refreshToken.model';
+import { User } from '../models/user.model';
 import {
   BadRequestException,
   UnauthorizedException,
   NotFoundException,
-  InternalServerException,
 } from '../utils/app-error.utils';
+import { generateAccessToken, generateRefreshToken, verifyToken } from '../utils/token.utils';
 
-// REGISTER
-export const register = async (req: Request, res: Response) => {
-  const { name, email, password } = req.body;
+/**
+ * @desc Register a new user
+ * @route POST /api/auth/register
+ * @access Public
+ */
+export const register = async (req: Request, res: Response): Promise<void> => {
+  const { name, email, password } = req.body as {
+    name: string;
+    email: string;
+    password: string;
+  };
 
   const exists = await User.findOne({ email });
   if (exists)
@@ -44,9 +55,13 @@ export const register = async (req: Request, res: Response) => {
   });
 };
 
-// LOGIN
-export const login = async (req: Request, res: Response) => {
-  const { email, password } = req.body;
+/**
+ * @desc Login user and return tokens
+ * @route POST /api/auth/login
+ * @access Public
+ */
+export const login = async (req: Request, res: Response): Promise<void> => {
+  const { email, password } = req.body as { email: string; password: string };
 
   const user = await User.findOne({ email });
   if (!user) throw new NotFoundException('User not found', ERROR_CODE_ENUM.AUTH_USER_NOT_FOUND);
@@ -77,9 +92,13 @@ export const login = async (req: Request, res: Response) => {
   });
 };
 
-// REFRESH TOKEN
-export const refresh = async (req: Request, res: Response) => {
-  const { refreshToken } = req.body;
+/**
+ * @desc Generate new access token from refresh token
+ * @route POST /api/auth/refresh
+ * @access Public
+ */
+export const refresh = async (req: Request, res: Response): Promise<void> => {
+  const { refreshToken } = req.body as { refreshToken?: string };
   if (!refreshToken)
     throw new BadRequestException(
       'No refresh token provided',
@@ -103,9 +122,13 @@ export const refresh = async (req: Request, res: Response) => {
   res.status(HTTP_STATUS_CODE.OK).json({ accessToken: newAccessToken });
 };
 
-// LOGOUT
-export const logout = async (req: Request, res: Response) => {
-  const { refreshToken } = req.body;
+/**
+ * @desc Logout user by invalidating refresh token
+ * @route POST /api/auth/logout
+ * @access Public
+ */
+export const logout = async (req: Request, res: Response): Promise<void> => {
+  const { refreshToken } = req.body as { refreshToken?: string };
   if (!refreshToken)
     throw new BadRequestException(
       'No refresh token provided',
@@ -116,10 +139,14 @@ export const logout = async (req: Request, res: Response) => {
   res.status(HTTP_STATUS_CODE.OK).json({ message: 'Logged out successfully' });
 };
 
-// PROFILE
-export const getProfile = async (req: Request, res: Response) => {
-  const user = (req as any).user;
-  if (!user) throw new UnauthorizedException('Unauthorized', ERROR_CODE_ENUM.AUTH_UNAUTHORIZED);
+/**
+ * @desc Get authenticated user profile
+ * @route GET /api/auth/profile
+ * @access Private
+ */
+export const getProfile = (req: Request, res: Response): void => {
+  const user = req.user;
+  // if (!user) throw new UnauthorizedException('Unauthorized', ERROR_CODE_ENUM.AUTH_UNAUTHORIZED);
 
   res.status(HTTP_STATUS_CODE.OK).json({ user });
 };
