@@ -6,15 +6,7 @@
 import { Request, Response } from 'express';
 
 import { HTTP_STATUS_CODE } from '../config/http.config';
-import { ERROR_CODE_ENUM } from '../enums/error-code.enum';
-import { RefreshToken } from '../models/refreshToken.model';
-import { User } from '../models/user.model';
-import {
-  BadRequestException,
-  UnauthorizedException,
-  NotFoundException,
-} from '../utils/app-error.utils';
-import { generateAccessToken, generateRefreshToken, verifyToken } from '../utils/token.utils';
+import { authService } from '../services/auth.service';
 
 /**
  * @desc Register a new user
@@ -22,37 +14,9 @@ import { generateAccessToken, generateRefreshToken, verifyToken } from '../utils
  * @access Public
  */
 export const register = async (req: Request, res: Response): Promise<void> => {
-  const { name, email, password } = req.body as {
-    name: string;
-    email: string;
-    password: string;
-  };
-
-  const exists = await User.findOne({ email });
-  if (exists)
-    throw new BadRequestException(
-      'Email already in use',
-      ERROR_CODE_ENUM.AUTH_EMAIL_ALREADY_EXISTS,
-    );
-
-  const user = await User.create({ name, email, password });
-  const accessToken = generateAccessToken(String(user._id));
-  const refreshToken = generateRefreshToken(String(user._id));
-
-  // Before creating a new refresh token, delete any existing ones
-  await RefreshToken.deleteMany({ userId: user._id });
-
-  await RefreshToken.create({
-    userId: user._id,
-    token: refreshToken,
-    expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
-  });
-
-  res.status(HTTP_STATUS_CODE.CREATED).json({
-    user: { id: user._id, name, email },
-    accessToken,
-    refreshToken,
-  });
+  const { name, email, password } = req.body as { name: string; email: string; password: string };
+  const result = await authService.register({ name, email, password });
+  res.status(HTTP_STATUS_CODE.CREATED).json(result);
 };
 
 /**
@@ -62,34 +26,8 @@ export const register = async (req: Request, res: Response): Promise<void> => {
  */
 export const login = async (req: Request, res: Response): Promise<void> => {
   const { email, password } = req.body as { email: string; password: string };
-
-  const user = await User.findOne({ email });
-  if (!user) throw new NotFoundException('User not found', ERROR_CODE_ENUM.AUTH_USER_NOT_FOUND);
-
-  const valid = await user.comparePassword(password);
-  if (!valid)
-    throw new UnauthorizedException(
-      'Invalid credentials',
-      ERROR_CODE_ENUM.AUTH_INVALID_CREDENTIALS,
-    );
-
-  const accessToken = generateAccessToken(String(user._id));
-  const refreshToken = generateRefreshToken(String(user._id));
-
-  // Before creating a new refresh token, delete any existing ones
-  await RefreshToken.deleteMany({ userId: user._id });
-
-  await RefreshToken.create({
-    userId: user._id,
-    token: refreshToken,
-    expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
-  });
-
-  res.status(HTTP_STATUS_CODE.OK).json({
-    user: { id: user._id, name: user.name, email },
-    accessToken,
-    refreshToken,
-  });
+  const result = await authService.login({ email, password });
+  res.status(HTTP_STATUS_CODE.OK).json(result);
 };
 
 /**
@@ -98,28 +36,9 @@ export const login = async (req: Request, res: Response): Promise<void> => {
  * @access Public
  */
 export const refresh = async (req: Request, res: Response): Promise<void> => {
-  const { refreshToken } = req.body as { refreshToken?: string };
-  if (!refreshToken)
-    throw new BadRequestException(
-      'No refresh token provided',
-      ERROR_CODE_ENUM.AUTH_REFRESH_TOKEN_NOT_FOUND,
-    );
-
-  const stored = await RefreshToken.findOne({ token: refreshToken });
-  if (!stored)
-    throw new UnauthorizedException('Invalid refresh token', ERROR_CODE_ENUM.AUTH_INVALID_TOKEN);
-
-  const decoded = verifyToken(refreshToken);
-  if (!decoded) {
-    await RefreshToken.deleteOne({ token: refreshToken });
-    throw new UnauthorizedException(
-      'Expired or invalid refresh token',
-      ERROR_CODE_ENUM.AUTH_EXPIRED_TOKEN,
-    );
-  }
-
-  const newAccessToken = generateAccessToken(decoded.id);
-  res.status(HTTP_STATUS_CODE.OK).json({ accessToken: newAccessToken });
+  const { refreshToken } = req.body as { refreshToken: string };
+  const result = await authService.refreshAccessToken(refreshToken);
+  res.status(HTTP_STATUS_CODE.OK).json(result);
 };
 
 /**
@@ -128,14 +47,8 @@ export const refresh = async (req: Request, res: Response): Promise<void> => {
  * @access Public
  */
 export const logout = async (req: Request, res: Response): Promise<void> => {
-  const { refreshToken } = req.body as { refreshToken?: string };
-  if (!refreshToken)
-    throw new BadRequestException(
-      'No refresh token provided',
-      ERROR_CODE_ENUM.AUTH_REFRESH_TOKEN_NOT_FOUND,
-    );
-
-  await RefreshToken.deleteOne({ token: refreshToken });
+  const { refreshToken } = req.body as { refreshToken: string };
+  await authService.logout(refreshToken);
   res.status(HTTP_STATUS_CODE.OK).json({ message: 'Logged out successfully' });
 };
 
@@ -144,9 +57,8 @@ export const logout = async (req: Request, res: Response): Promise<void> => {
  * @route GET /api/auth/profile
  * @access Private
  */
-export const getProfile = (req: Request, res: Response): void => {
-  const user = req.user;
-  // if (!user) throw new UnauthorizedException('Unauthorized', ERROR_CODE_ENUM.AUTH_UNAUTHORIZED);
-
-  res.status(HTTP_STATUS_CODE.OK).json({ user });
+export const getProfile = async (req: Request, res: Response): Promise<void> => {
+  const userId = String(req.user._id);
+  const profile = await authService.getProfile(userId);
+  res.status(HTTP_STATUS_CODE.OK).json({ user: profile });
 };
