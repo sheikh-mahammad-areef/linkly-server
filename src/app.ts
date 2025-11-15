@@ -37,6 +37,6 @@ app.use((req, res) => {
 // Error handler
 app.use(errorHandler);
 
-const test = 'checking husky ... ';
+const test;
 
 export default app;
