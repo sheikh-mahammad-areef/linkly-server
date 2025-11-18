@@ -18,7 +18,7 @@ export default defineConfig([
   {
     languageOptions: {
       parserOptions: {
-        projectService: true,
+        project: './tsconfig.json',
         tsconfigRootDir: import.meta.dirname,
       },
     },
@@ -34,6 +34,35 @@ export default defineConfig([
       '@typescript-eslint/restrict-template-expressions': 'off',
 
       // Only sort imports — leave everything else alone
+      'perfectionist/sort-imports': [
+        'warn',
+        {
+          type: 'natural',
+          groups: [['builtin', 'external'], ['internal'], ['parent', 'sibling', 'index']],
+        },
+      ],
+    },
+  },
+
+  // Config for TEST files (tests/) and vitest.config.ts
+  {
+    files: ['tests/**/*.ts', 'vitest.config.ts'],
+    languageOptions: {
+      parserOptions: {
+        project: './tsconfig.test.json',
+        tsconfigRootDir: import.meta.dirname,
+      },
+    },
+    plugins: { perfectionist },
+    rules: {
+      '@typescript-eslint/no-unused-vars': ['warn', { argsIgnorePattern: '^_' }],
+      '@typescript-eslint/no-unsafe-assignment': 'off',
+      '@typescript-eslint/no-unsafe-member-access': 'off',
+      '@typescript-eslint/no-unsafe-call': 'off',
+      '@typescript-eslint/no-unsafe-argument': 'off',
+      '@typescript-eslint/no-unsafe-return': 'off',
+      '@typescript-eslint/require-await': 'warn',
+
       'perfectionist/sort-imports': [
         'warn',
         {

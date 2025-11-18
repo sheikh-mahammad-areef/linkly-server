@@ -13,6 +13,9 @@ build/
 .env.production
 .env.test
 
+# Testing
+coverage/
+
 
 # Logs
 npm-debug.log*

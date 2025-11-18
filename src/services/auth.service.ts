@@ -107,6 +107,9 @@ class AuthService {
       );
     }
 
+    // Delete user's old refresh tokens BEFORE creating new ones
+    await RefreshToken.deleteMany({ userId: user._id });
+
     // Generate tokens
     const accessToken = generateAccessToken(String(user._id));
     const refreshToken = generateRefreshToken(String(user._id));
@@ -170,15 +173,17 @@ class AuthService {
       );
     }
 
-    const result = await RefreshToken.deleteOne({ token: refreshToken });
-
+    // const result = await RefreshToken.deleteOne({ token: refreshToken });
     // Check if any document was deleted
-    if (result.deletedCount === 0) {
-      throw new UnauthorizedException(
-        'Invalid or expired refresh token',
-        ERROR_CODE_ENUM.AUTH_INVALID_TOKEN,
-      );
-    }
+    // if (result.deletedCount === 0) {
+    //   throw new UnauthorizedException(
+    //     'Invalid or expired refresh token',
+    //     ERROR_CODE_ENUM.AUTH_INVALID_TOKEN,
+    //   );
+    // }
+
+    //should succeed silently if token does not exist (idempotent)
+    await RefreshToken.deleteOne({ token: refreshToken });
   }
 
   /**
