@@ -4,7 +4,6 @@ on:
   push: # Triggers on every push to any branch
     branches:
       - '**'
-
 jobs:
   say-hello:
     runs-on: ubuntu-latest
