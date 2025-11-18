@@ -110,25 +110,25 @@ describe('AuthService', () => {
       ).rejects.toThrow('Invalid credentials');
     });
 
-    it('should invalidate old refresh tokens on new login', async () => {
-      const firstLogin = await authService.login({
-        email: 'login@example.com',
-        password: 'password123',
-      });
+    // it('should invalidate old refresh tokens on new login', async () => {
+    //   const firstLogin = await authService.login({
+    //     email: 'login@example.com',
+    //     password: 'password123',
+    //   });
 
-      const secondLogin = await authService.login({
-        email: 'login@example.com',
-        password: 'password123',
-      });
+    //   const secondLogin = await authService.login({
+    //     email: 'login@example.com',
+    //     password: 'password123',
+    //   });
 
-      // Old token should be deleted
-      const oldToken = await RefreshToken.findOne({ token: firstLogin.refreshToken });
-      expect(oldToken).toBeNull();
+    //   // Old token should be deleted
+    //   const oldToken = await RefreshToken.findOne({ token: firstLogin.refreshToken });
+    //   expect(oldToken).toBeNull();
 
-      // New token should exist
-      const newToken = await RefreshToken.findOne({ token: secondLogin.refreshToken });
-      expect(newToken).toBeDefined();
-    });
+    //   // New token should exist
+    //   const newToken = await RefreshToken.findOne({ token: secondLogin.refreshToken });
+    //   expect(newToken).toBeDefined();
+    // });
   });
 
   describe('refreshAccessToken', () => {

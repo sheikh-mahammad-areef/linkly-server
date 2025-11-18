@@ -1,0 +1,12 @@
+name: Say Hello on Push
+
+on:
+  push: # Triggers on every push to any branch
+    branches:
+      - '**'
+jobs:
+  say-hello:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Hello Message
+        run: echo "👋 Hello from GitHub Actions! Your code was pushed to $(git rev-parse --abbrev-ref HEAD)."
