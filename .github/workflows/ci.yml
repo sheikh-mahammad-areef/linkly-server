@@ -9,6 +9,23 @@ on:
 jobs:
   lint-and-test:
     runs-on: ubuntu-latest
+
+    services:
+      mongo:
+        image: mongo:6.0 # Use a MongoDB version compatible with your code
+        ports:
+          - 27017:27017
+        options: --quiet # Optional; makes logs less noisy
+
+    env:
+      # Set your test environment variables for Node/Mongoose
+      NODE_ENV: test
+      MONGO_URI: mongodb://localhost:27017/linkly-test
+      JWT_ACCESS_SECRET: test_access_secret_minimum_32_characters_long
+      JWT_REFRESH_SECRET: test_refresh_secret_minimum_32_characters_long
+      CLIENT_URL: http://localhost:3000
+      PORT: 5001
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -21,8 +38,17 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Run ESLint
+      - name: Wait for MongoDB to be ready
+        run: |
+          for i in {1..20}; do
+            nc -z localhost 27017 && echo "MongoDB is up!" && exit 0
+            echo "Waiting for MongoDB..."
+            sleep 2
+          done
+          echo "MongoDB did not start in time" && exit 1
+
+      - name: Run Lint
         run: npm run lint
 
-      - name: Run tests
+      - name: Run Tests
         run: npm test
