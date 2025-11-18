@@ -107,9 +107,6 @@ class AuthService {
       );
     }
 
-    // Delete user's old refresh tokens BEFORE creating new ones
-    await RefreshToken.deleteMany({ userId: user._id });
-
     // Generate tokens
     const accessToken = generateAccessToken(String(user._id));
     const refreshToken = generateRefreshToken(String(user._id));
