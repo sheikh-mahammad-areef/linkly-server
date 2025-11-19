@@ -4,7 +4,7 @@
 //  ------------------------------------------------------------------
 
 import cors from 'cors';
-import express from 'express';
+import express, { Application } from 'express';
 import helmet from 'helmet';
 import morgan from 'morgan';
 
@@ -14,7 +14,7 @@ import { ERROR_CODE_ENUM } from './enums/error-code.enum';
 import { errorHandler } from './middlewares/error.middleware';
 import routes from './router';
 
-const app = express();
+const app: Application = express();
 
 // Global Middlewares
 app.use(helmet());
